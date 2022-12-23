@@ -63,11 +63,9 @@ def rank_tweeter(ranked_list,text):
     if len(ranked_list) > 5:
         for a in range(5):
             message = message + f"\n{a+1:}. {ranked_list[a][0]} - {ranked_list[a][1]} plays"
-            # call to find image album.getInfo, artist.getInfo, track.getInfo then add them to the tweet
     else:
         for a in range(len(ranked_list)):
             message = message + f"\n{a+1:}. {ranked_list[a][0]} - {ranked_list[a][1]} plays"
-            # call to find image
     twitter.create_tweet(text=message)
 
 def rank():
@@ -79,8 +77,7 @@ def rank():
    rank_tweeter(ranked_songs,"songs")
 
 usernames = [] #lastfm username of people who you want to get songs listened to from, organized in a tuple with (name of person, name to appear on twitter)
-
-for users in usernames: 
+for users in usernames:
   USER = users[0]
   TWITTER_NAME = users[1]
   counter = 0
@@ -89,6 +86,7 @@ for users in usernames:
   play_count_album = {}
   play_count_song = {}
   work = False
+  tweeted = False
   while work == False:
     while page_num > 0:
       print(page_num)
@@ -102,23 +100,23 @@ for users in usernames:
         noerr = True
         for t in r.json()['recenttracks']['track']:
             if not "@attr" in t:
-                tracks.append([[f"{t['name']} by {t['artist']['#text']}",[t['date']['#text'].split()],[t['image'][3]['#text']]]]) # the number between ['image] and ['text] represents size
-                if t['artist']['#text'] in play_count_artist:
-                    play_count_artist[t['artist']['#text']] += 1
-                else:
-                    play_count_artist[t['artist']['#text']] = 0
-                if f"{t['album']['#text']} - {t['artist']['#text']}" in play_count_album:
-                    play_count_album[f"{t['album']['#text']} - {t['artist']['#text']}"] += 1
-                else:
-                    play_count_album[f"{t['album']['#text']} - {t['artist']['#text']}"] = 0
-                if f"{t['name']} - {t['artist']['#text']}" in play_count_song:
-                    play_count_song[f"{t['name']} - {t['artist']['#text']}"] += 1
-                else:
-                    play_count_song[f"{t['name']} - {t['artist']['#text']}"] = 0
+              tracks.append([[f"{t['name']} by {t['artist']['#text']}",[t['date']['#text'].split()],[t['image'][3]['#text']]]]) # the number between ['image] and ['text] represents size
+              if t['artist']['#text'] in play_count_artist:
+                play_count_artist[t['artist']['#text']] += 1
+              else:
+                play_count_artist[t['artist']['#text']] = 0
+              if f"{t['album']['#text']} - {t['artist']['#text']}" in play_count_album:
+                play_count_album[f"{t['album']['#text']} - {t['artist']['#text']}"] += 1
+              else:
+                play_count_album[f"{t['album']['#text']} - {t['artist']['#text']}"] = 0
+              if f"{t['name']} - {t['artist']['#text']}" in play_count_song:
+                play_count_song[f"{t['name']} - {t['artist']['#text']}"] += 1
+              else:
+                play_count_song[f"{t['name']} - {t['artist']['#text']}"] = 0
         # splits hour and minutes
         tracks[-1][-1][1][0][3] = tracks[-1][-1][1][0][3].split(":")
         for z in tracks[-1][-1][1][0][3]:
-            tracks[-1][-1][1][0].append(z)
+         tracks[-1][-1][1][0].append(z)
         tracks[-1][-1][1][0].remove(tracks[-1][-1][1][0][3])
         page_num -= 1
       except:
@@ -127,14 +125,14 @@ for users in usernames:
       # converts month abbreviation name into number
       monthname = s[-1][1][0][1]
       try:
-          s[-1][1][0][1] = datetime.strptime(monthname, '%b').month
+        s[-1][1][0][1] = datetime.strptime(monthname, '%b').month
       except:
-          break
+        break
       s[-1][1][0][2] = s[-1][1][0][2].strip(",")
       if most_recent == "":
         # Requests most recent tweets from a users timeline
         tweets = twitter.get_users_tweets(id=user_id,max_results=5)
-        try: #adapt tis to find the most recent one that fits in case sharing with multipel programs   
+        try: #adapt tis to find the most recent one that fits in case sharing with multipel programs
           tweets = str(tweets[0][3])
           most_recent = datetime(int(tweets[-28:-24]),int(tweets[-31:-29]),int(tweets[-34:-32]),int(tweets[-43:-41]),int(tweets[-40:-38]),0,0)
         except:
@@ -143,8 +141,8 @@ for users in usernames:
           date_data = s[-1][1][0]
           most_recent = datetime(int(date_data[2]), int(date_data[1]), int(date_data[0]), int(date_data[3]), int(date_data[4]), 0, 0)
           if most_recent == "":
-              date_data = s[0][1][0]
-              most_recent = datetime(int(date_data[2]),int(date_data[1]),int(date_data[0]),int(date_data[3]),int(date_data[4]),0,0)
+            date_data = s[0][1][0]
+            most_recent = datetime(int(date_data[2]),int(date_data[1]),int(date_data[0]),int(date_data[3]),int(date_data[4]),0,0)
       date_data = s[-1][1][0]
       try:
         print(date_data[4]) # if there is a 4th index it doesn't need to be split
@@ -154,11 +152,13 @@ for users in usernames:
         date_data[3] = date_data[3][0]
       current_time = datetime(int(date_data[2]),int(date_data[1]),int(date_data[0]),int(date_data[3]),int(date_data[4]),0,0)
       if current_time > most_recent:
-        message = f"{TWITTER_NAME} listened to {s[0][0]} at {s[-1][1][0][3]}:{s[-1][1][0][4]} on {s[-1][1][0][0]}/{s[-1][1][0][1]}/{s[-1][1][0][2]}"
+        message = f"Listened to {s[0][0]} at {s[-1][1][0][3]}:{s[-1][1][0][4]} on {s[-1][1][0][0]}/{s[-1][1][0][1]}/{s[-1][1][0][2]}"
         tweet_image(s[0][2][0], message)
         print("Tweeted: %s" % message)
+        tweeted = True
         most_recent = current_time
         time.sleep(1)
     if noerr:
-      rank()
+      if tweeted:
+        rank()
       work = True
